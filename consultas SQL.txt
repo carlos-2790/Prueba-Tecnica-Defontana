@@ -1,0 +1,71 @@
+1-Consultar todas las ventas de los últimos 30 días:
+SELECT *
+FROM Venta
+WHERE Fecha >= DATEADD(day, -30, GETDATE())
+
+----------------------------------------------------------------------------
+
+2-Total de ventas de los últimos 30 días:
+SELECT SUM(Total) AS TotalVentas, COUNT(*) AS CantidadVentas
+FROM Venta
+WHERE Fecha >= DATEADD(day, -30, GETDATE())
+
+-------------------------------------------
+
+3-El día y hora en que se realizó la venta con el monto más alto:
+
+SELECT TOP 1 Fecha, Total
+FROM Venta
+WHERE Fecha >= DATEADD(day, -30, GETDATE())
+ORDER BY Total DESC
+
+------------------------------------------------
+
+4-Producto con mayor monto total de ventas:
+SELECT TOP 1 p.Nombre, SUM(d.TotalLinea) AS TotalVentas
+FROM VentaDetalle d
+INNER JOIN Producto p ON d.ID_Producto = p.ID_Producto
+GROUP BY p.Nombre
+ORDER BY TotalVentas DESC
+
+--------------------------------------------------
+
+5-Local con mayor monto de ventas:
+SELECT TOP 1 l.Nombre, SUM(v.Total) AS TotalVentas
+FROM Venta v
+INNER JOIN Local l ON v.ID_Local = l.ID_Local
+WHERE v.Fecha >= DATEADD(day, -30, GETDATE())
+GROUP BY l.Nombre
+ORDER BY TotalVentas DESC
+
+--------------------------------------------------
+
+6-Marca con mayor margen de ganancias:
+SELECT TOP 1 m.Nombre
+FROM Marca m
+INNER JOIN Producto p ON m.ID_Marca = p.ID_Marca
+INNER JOIN VentaDetalle d ON p.ID_Producto = d.ID_Producto
+GROUP BY m.Nombre
+ORDER BY SUM((d.Precio_Unitario - p.Costo_Unitario) * d.Cantidad) DESC
+
+---------------------------------------------------
+
+7-Producto más vendido en cada local:
+SELECT l.Nombre AS Local, p.Nombre AS Producto, SUM(d.Cantidad) AS TotalVentas
+FROM VentaDetalle d
+INNER JOIN Venta v ON d.ID_Venta = v.ID_Venta
+INNER JOIN Local l ON v.ID_Local = l.ID_Local
+INNER JOIN Producto p ON d.ID_Producto = p.ID_Producto
+WHERE v.Fecha >= DATEADD(day, -30, GETDATE())
+GROUP BY l.Nombre, p.Nombre
+HAVING SUM(d.Cantidad) = (
+    SELECT TOP 1 SUM(d2.Cantidad)
+    FROM VentaDetalle d2
+    INNER JOIN Venta v2 ON d2.ID_Venta = v2.ID_Venta
+    WHERE v2.Fecha >= DATEADD(day, -30, GETDATE())
+    AND l.ID_Local = v2.ID_Local
+    GROUP BY d2.ID_Producto
+    ORDER BY SUM(d2.Cantidad) DESC )
+
+-------------------------------------------------------
+

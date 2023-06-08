@@ -1,0 +1,17 @@
+
+¿Cómo obtendrías cuál es el producto que más se vende en cada local?
+
+
+var productosMasVendidosPorLocal: Se realiza una consulta en la tabla "VentaDetalle" utilizando el objeto dbContext. La consulta agrupa los registros por ID_Local y ID_Producto, y calcula la suma de la cantidad vendida para cada combinación de local y producto. Esto nos da el total de ventas para cada producto en cada local.
+
+GroupBy(g => g.ID_Local): Se realiza un segundo agrupamiento por ID_Local para agrupar los resultados anteriores por local.
+
+foreach (var localGroup in productosMasVendidosPorLocal): Se itera sobre cada grupo de productos más vendidos por local.
+
+var local = dbContext.Local.FirstOrDefault(l => l.ID_Local == localGroup.Key);: Se obtiene el objeto Local correspondiente al ID_Local del grupo actual.
+
+var productoMsVendido = localGroup.OrderByDescending(p => p.TotalVentas).FirstOrDefault();: Se obtiene el producto más vendido dentro del grupo actual ordenando por TotalVentas de forma descendente y seleccionando el primero.
+
+var producto = dbContext.Producto.FirstOrDefault(p => p.ID_Producto == productoMsVendido.ID_Producto);: Se obtiene el objeto Producto correspondiente al ID_Producto del producto más vendido.
+
+Se imprime en la consola el nombre del local y el nombre del producto más vendido junto con la cantidad de unidades vendidas.
