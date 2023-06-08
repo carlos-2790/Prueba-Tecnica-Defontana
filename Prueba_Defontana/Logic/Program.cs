@@ -104,6 +104,8 @@ namespace Prueba_Defontana
 
                     Console.WriteLine();
                 }
+
+                    Console.ReadLine();
             }
         }
     }
